@@ -3,7 +3,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Product, Order, OrderItem
-from .forms import UserRegisterForm, UserLoginForm, OrderForm
+from .forms import UserRegisterForm, UserLoginForm, OrderForm, ProductForm
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 # --- Auth Views ---
 def register(request):
@@ -116,3 +117,44 @@ def checkout(request):
 def my_orders(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'my_orders.html', {'orders': orders})
+
+# --- Admin Views ---
+@user_passes_test(lambda u: u.is_superuser)
+def admin_dashboard(request):
+    products = Product.objects.all().order_by('-created_at')
+    orders = Order.objects.all().order_by('-created_at')[:5] # Show recent 5 orders
+    return render(request, 'admin_dashboard.html', {'products': products, 'orders': orders})
+
+@user_passes_test(lambda u: u.is_superuser)
+def add_product(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Product added successfully!')
+            return redirect('admin_dashboard')
+    else:
+        form = ProductForm()
+    return render(request, 'admin_product_form.html', {'form': form, 'title': 'Add Product'})
+
+@user_passes_test(lambda u: u.is_superuser)
+def edit_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Product updated successfully!')
+            return redirect('admin_dashboard')
+    else:
+        form = ProductForm(instance=product)
+    return render(request, 'admin_product_form.html', {'form': form, 'title': 'Edit Product'})
+
+@user_passes_test(lambda u: u.is_superuser)
+def delete_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == 'POST':
+        product.delete()
+        messages.success(request, 'Product deleted successfully!')
+        return redirect('admin_dashboard')
+    return render(request, 'admin_product_confirm_delete.html', {'product': product})

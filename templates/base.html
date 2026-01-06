@@ -10,53 +10,88 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --glass-bg: rgba(255, 255, 255, 0.95);
+            --primary-bg: #4e54c8;
+            --secondary-bg: #8f94fb;
+            --primary-gradient: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.3);
+            --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
         }
 
         body {
             font-family: 'Outfit', sans-serif;
-            background: #f8f9fa;
+            background: #f0f2f5;
             min-height: 100vh;
-            color: #2d3748;
+            color: #1a202c;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
         }
 
         .navbar {
             background: var(--primary-gradient) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(78, 84, 200, 0.25);
+            backdrop-filter: blur(10px);
         }
 
-        .navbar-brand,
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
         .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
             color: white !important;
         }
 
         .btn-primary {
-            background: #667eea;
+            background: var(--primary-bg);
+            background-image: var(--primary-gradient);
             border: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-primary:hover {
-            background: #764ba2;
+            box-shadow: 0 10px 20px rgba(78, 84, 200, 0.3);
             transform: translateY(-2px);
+            opacity: 0.95;
         }
 
         .card {
             border: none;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s;
+            border-radius: 16px;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
+            background: white;
+            overflow: hidden;
         }
 
         .card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #8f94fb;
+            box-shadow: 0 0 0 4px rgba(143, 148, 251, 0.1);
         }
 
         footer {
-            background: #2d3748;
-            color: white;
-            padding: 2rem 0;
+            background: #1a202c;
+            color: #cbd5e0;
+            padding: 3rem 0;
             margin-top: auto;
         }
     </style>

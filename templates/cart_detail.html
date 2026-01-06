@@ -2,66 +2,130 @@
 {% block title %}Shopping Cart{% endblock %}
 
 {% block content %}
-<h2 class="mb-4 fw-bold">Your Shopping Cart</h2>
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2 class="fw-bold display-6">Shopping Cart</h2>
+        <p class="text-muted">Review your items before checkout</p>
+    </div>
+</div>
 
 {% if cart_items %}
-<div class="row">
+<div class="row g-4">
     <div class="col-lg-8">
-        <div class="card shadow-sm">
+        <div class="card border-0 shadow-soft rounded-4 overflow-hidden">
             <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="ps-4">Product</th>
-                            <th>Price</th>
-                            <th>Qty</th>
-                            <th>Subtotal</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in cart_items %}
-                        <tr>
-                            <td class="ps-4 fw-bold">{{ item.product.name }}</td>
-                            <td>${{ item.product.price }}</td>
-                            <td>x {{ item.quantity }}</td>
-                            <td class="fw-bold text-primary">${{ item.subtotal }}</td>
-                            <td>
-                                <a href="{% url 'remove_from_cart' item.product.id %}" class="text-danger"
-                                    title="Remove">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 py-3 text-uppercase small fw-bold text-muted border-0">Product</th>
+                                <th class="py-3 text-uppercase small fw-bold text-muted border-0">Price</th>
+                                <th class="py-3 text-uppercase small fw-bold text-muted border-0">Qty</th>
+                                <th class="py-3 text-uppercase small fw-bold text-muted border-0">Subtotal</th>
+                                <th class="py-3 text-uppercase small fw-bold text-muted border-0"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            {% for item in cart_items %}
+                            <tr>
+                                <td class="ps-4 py-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-3 bg-light p-2 me-3 text-center"
+                                            style="width: 50px; height: 50px;">
+                                            <i class="fas fa-box text-secondary pt-1"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">{{ item.product.name }}</h6>
+                                            <small class="text-muted">{{ item.product.description|truncatewords:5
+                                                }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-4 text-muted">${{ item.product.price }}</td>
+                                <td class="py-4">
+                                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">{{
+                                        item.quantity }}</span>
+                                </td>
+                                <td class="fw-bold text-primary py-4">${{ item.subtotal }}</td>
+                                <td class="py-4 text-end pe-4">
+                                    <a href="{% url 'remove_from_cart' item.product.id %}"
+                                        class="btn btn-link text-danger p-0 shadow-none hover-scale"
+                                        title="Remove item">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-4 mt-4 mt-lg-0">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h4 class="card-title fw-bold mb-4">Summary</h4>
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="text-muted">Total</span>
-                    <span class="fs-4 fw-bold">${{ total_price }}</span>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-lg rounded-4 bg-white">
+            <div class="card-body p-4">
+                <h4 class="card-title fw-bold mb-4">Order Summary</h4>
+
+                <div class="d-flex justify-content-between mb-2 text-muted">
+                    <span>Subtotal</span>
+                    <span>${{ total_price }}</span>
                 </div>
-                <hr>
-                <div class="d-grid gap-2">
-                    <a href="{% url 'checkout' %}" class="btn btn-primary py-2 fw-bold">Proceed to Checkout</a>
-                    <a href="{% url 'shop' %}" class="btn btn-outline-secondary py-2">Continue Shopping</a>
+                <div class="d-flex justify-content-between mb-4 text-muted">
+                    <span>Shipping</span>
+                    <span class="text-success">Free</span>
+                </div>
+
+                <hr class="my-4 opacity-10">
+
+                <div class="d-flex justify-content-between mb-4 align-items-center">
+                    <span class="fw-bold h5 mb-0">Total</span>
+                    <span class="fw-bold h4 mb-0 text-primary">${{ total_price }}</span>
+                </div>
+
+                <div class="d-grid gap-3">
+                    <a href="{% url 'checkout' %}"
+                        class="btn btn-primary py-3 rounded-3 fw-bold shadow-sm icon-link-hover">
+                        Proceed to Checkout <i class="fas fa-arrow-right ms-2 transition-transform"></i>
+                    </a>
+                    <a href="{% url 'shop' %}" class="btn btn-outline-secondary py-3 rounded-3 fw-bold border-2">
+                        Continue Shopping
+                    </a>
                 </div>
             </div>
+        </div>
+
+        <div class="mt-4 text-center">
+            <p class="small text-muted mb-0"><i class="fas fa-shield-alt me-1"></i> Secure Checkout Guaranteed</p>
         </div>
     </div>
 </div>
+
+<style>
+    .hover-scale {
+        transition: transform 0.2s;
+    }
+
+    .hover-scale:hover {
+        transform: scale(1.2);
+    }
+
+    .icon-link-hover:hover .fa-arrow-right {
+        transform: translateX(5px);
+    }
+</style>
+
 {% else %}
-<div class="text-center py-5">
-    <div class="text-muted mb-3"><i class="fas fa-shopping-cart fa-4x"></i></div>
-    <h3>Your cart is empty</h3>
-    <a href="{% url 'shop' %}" class="btn btn-primary mt-3">Start Shopping</a>
+<div class="text-center py-5 my-5">
+    <div class="mb-4 text-muted opacity-25">
+        <i class="fas fa-shopping-cart fa-5x"></i>
+    </div>
+    <h3 class="fw-bold text-dark mb-3">Your cart is empty</h3>
+    <p class="text-muted mb-4">Looks like you haven't added anything to your cart yet.</p>
+    <a href="{% url 'shop' %}" class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm">
+        Start Shopping Now
+    </a>
 </div>
 {% endif %}
 {% endblock %}

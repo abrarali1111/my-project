@@ -19,4 +19,10 @@ urlpatterns = [
     # Checkout & Orders
     path('checkout/', views.checkout, name='checkout'),
     path('my-orders/', views.my_orders, name='my_orders'),
+    
+    # Custom Admin
+    path('custom-admin/', views.admin_dashboard, name='admin_dashboard'),
+    path('custom-admin/add/', views.add_product, name='add_product'),
+    path('custom-admin/edit/<int:pk>/', views.edit_product, name='edit_product'),
+    path('custom-admin/delete/<int:pk>/', views.delete_product, name='delete_product'),
 ]
