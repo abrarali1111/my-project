@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% extends 'base.html' %}
+    {% block title %}Item List{% endblock %}
+</head>
+
+<body>
+    {% block content %}
+    <h2 class="mb-4">Items</h2>
+    <a href="{% url 'item_add' %}" class="btn btn-success mb-3">Add New Item</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.description|linebreaksbr }}</td>
+                <td>{{ item.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'item_edit' item.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{% url 'item_delete' item.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No items found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'logout' %}" class="btn btn-outline-secondary">Logout</a>
+    {% endblock %}
+</body>
+
+</html>
