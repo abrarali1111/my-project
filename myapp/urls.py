@@ -8,17 +8,18 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='login.html', authentication_form=UserLoginForm), name='login'),
     path('logout/', views.custom_logout, name='logout'),
     path('register/', views.register, name='register'),
+    path('dashboard/', views.user_dashboard, name='user_dashboard'), # User Dashboard
 
-    # Shop & Cart
+    # Shop & Cart & Wishlist
     path('', views.shop, name='shop'),
     path('product/<int:pk>/', views.product_detail, name='product_detail'),
     path('add-to-cart/<int:pk>/', views.add_to_cart, name='add_to_cart'),
+    path('wishlist/toggle/<int:pk>/', views.toggle_wishlist, name='toggle_wishlist'), # Wishlist Toggle
     path('remove-from-cart/<int:pk>/', views.remove_from_cart, name='remove_from_cart'),
     path('cart/', views.cart_detail, name='cart_detail'),
     
-    # Checkout & Orders
+    # Checkout
     path('checkout/', views.checkout, name='checkout'),
-    path('my-orders/', views.my_orders, name='my_orders'),
     
     # Custom Admin
     path('custom-admin/', views.admin_dashboard, name='admin_dashboard'),

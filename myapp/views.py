@@ -1,10 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Product, Order, OrderItem
-from .forms import UserRegisterForm, UserLoginForm, OrderForm, ProductForm
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
+from .models import Product, Order, OrderItem, Wishlist
+from .forms import UserRegisterForm, UserLoginForm, OrderForm, ProductForm
 
 # --- Auth Views ---
 def register(request):
@@ -24,6 +23,31 @@ def custom_logout(request):
     messages.info(request, "You have been logged out.")
     return redirect('login')
 
+# --- User Views ---
+@login_required
+def user_dashboard(request):
+    user_orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    
+    context = {
+        'orders': user_orders,
+        'wishlist_items': wishlist_items
+    }
+    return render(request, 'user_dashboard.html', context)
+
+@login_required
+def toggle_wishlist(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+    
+    if created:
+        messages.success(request, f"Added {product.name} to wishlist.")
+    else:
+        wishlist_item.delete()
+        messages.info(request, f"Removed {product.name} from wishlist.")
+        
+    return redirect('request.META.get("HTTP_REFERER", "shop")')    # Redirect back to same page
+
 # --- Shop Views ---
 def shop(request):
     products = Product.objects.all().order_by('-created_at')
@@ -31,9 +55,12 @@ def shop(request):
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    return render(request, 'product_detail.html', {'product': product})
+    in_wishlist = False
+    if request.user.is_authenticated:
+        in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
+    return render(request, 'product_detail.html', {'product': product, 'in_wishlist': in_wishlist})
 
-# --- Cart Logic (Session Based) ---
+# --- Cart Logic ---
 def add_to_cart(request, pk):
     cart = request.session.get('cart', {})
     cart[str(pk)] = cart.get(str(pk), 0) + 1
@@ -77,35 +104,27 @@ def checkout(request):
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            # Calculate total again for security
             total = 0
             products = Product.objects.filter(id__in=cart.keys())
             for p in products:
                 total += p.price * cart[str(p.id)]
             
-            # Create Order
             order = form.save(commit=False)
             order.user = request.user
             order.total_amount = total
             order.save()
             
-            # Create Order Items
             for p in products:
                 OrderItem.objects.create(
-                    order=order,
-                    product=p,
-                    quantity=cart[str(p.id)],
-                    price=p.price
+                    order=order, product=p, quantity=cart[str(p.id)], price=p.price
                 )
             
-            # Clear Cart
             request.session['cart'] = {}
             messages.success(request, "Your order has been placed successfully!")
-            return redirect('my_orders')
+            return redirect('user_dashboard')
     else:
         form = OrderForm()
         
-    # Calculate total for display
     total_price = 0
     products = Product.objects.filter(id__in=cart.keys())
     for p in products:
@@ -113,22 +132,17 @@ def checkout(request):
         
     return render(request, 'checkout.html', {'form': form, 'total_price': total_price})
 
-@login_required
-def my_orders(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'my_orders.html', {'orders': orders})
-
 # --- Admin Views ---
 @user_passes_test(lambda u: u.is_superuser)
 def admin_dashboard(request):
     products = Product.objects.all().order_by('-created_at')
-    orders = Order.objects.all().order_by('-created_at')[:5] # Show recent 5 orders
+    orders = Order.objects.all().order_by('-created_at') # All orders
     return render(request, 'admin_dashboard.html', {'products': products, 'orders': orders})
 
 @user_passes_test(lambda u: u.is_superuser)
 def add_product(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES)
+        form = ProductForm(request.POST) # Removing files argument for now as ImageField is gone
         if form.is_valid():
             form.save()
             messages.success(request, 'Product added successfully!')
@@ -141,7 +155,7 @@ def add_product(request):
 def edit_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES, instance=product)
+        form = ProductForm(request.POST, instance=product)
         if form.is_valid():
             form.save()
             messages.success(request, 'Product updated successfully!')
